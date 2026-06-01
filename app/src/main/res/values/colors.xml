@@ -2,4 +2,13 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="green_primary">#1A6B3C</color>
+    <color name="green_dark">#124A2A</color>
+    <color name="green_light">#E8F5E9</color>
+    <color name="green_accent">#4CAF50</color>
+    <color name="gray_light">#F5F5F5</color>
+    <color name="gray_medium">#9E9E9E</color>
+    <color name="gray_dark">#333333</color>
+    <color name="error_red">#D32F2F</color>
+    <color name="success_green">#388E3C</color>
 </resources>

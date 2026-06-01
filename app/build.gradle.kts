@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.kapt)
 }
 
 android {
@@ -41,4 +42,21 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
+
+    // CardView
+    implementation(libs.cardview)
+
+    // Room (local database)
+    implementation(libs.room.runtime)
+    annotationProcessor(libs.room.compiler)
+    testImplementation(libs.room.testing)
+
+    // Retrofit (HTTP client)
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.gson)
+    implementation(libs.gson)
+
+    // OkHttp logging
+    implementation(libs.okhttp.logging)
 }
+
