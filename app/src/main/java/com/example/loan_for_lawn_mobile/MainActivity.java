@@ -61,6 +61,7 @@ public class MainActivity extends AppCompatActivity {
 
         findViewById(R.id.auth_buttons).setVisibility(loggedIn ? android.view.View.GONE : android.view.View.VISIBLE);
         findViewById(R.id.user_info).setVisibility(loggedIn ? android.view.View.VISIBLE : android.view.View.GONE);
+        findViewById(R.id.btn_login).setVisibility(loggedIn ? android.view.View.GONE : android.view.View.VISIBLE);
 
         if (loggedIn && username != null) {
             ((android.widget.TextView) findViewById(R.id.user_greeting)).setText(

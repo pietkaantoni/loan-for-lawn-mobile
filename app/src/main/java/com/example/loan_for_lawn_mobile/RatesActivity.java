@@ -54,6 +54,9 @@ public class RatesActivity extends AppCompatActivity {
     }
 
     private void loadRates() {
+        ratesContainer.removeAllViews();
+        ratesContainer.setVisibility(android.view.View.GONE);
+        errorText.setVisibility(android.view.View.GONE);
         loadingText.setVisibility(android.view.View.VISIBLE);
 
         ApiClient.getClient().getExchangeRates().enqueue(new Callback<List<ApiModels.NbpResponse>>() {
@@ -78,6 +81,9 @@ public class RatesActivity extends AppCompatActivity {
     }
 
     private void displayPopularRates(List<ApiModels.NbpRate> allRates) {
+        ratesContainer.removeAllViews();
+        ratesContainer.setVisibility(android.view.View.VISIBLE);
+
         List<ApiModels.NbpRate> popular = new ArrayList<>();
         for (String code : POPULAR_CODES) {
             for (ApiModels.NbpRate rate : allRates) {
@@ -118,6 +124,7 @@ public class RatesActivity extends AppCompatActivity {
     }
 
     private void showError(String msg) {
+        ratesContainer.setVisibility(android.view.View.GONE);
         errorText.setText(msg);
         errorText.setVisibility(android.view.View.VISIBLE);
     }

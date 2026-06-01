@@ -40,7 +40,7 @@
 - **Ścieżka**: uruchomienie aplikacji
 - **Zawartość**:
   - Hero section z tytułem, opisem i przyciskami CTA
-  - Dla niezalogowanych: "Zaloguj się", "Zarejestruj się"
+  - Dla niezalogowanych: "Weź pożyczkę", "Załóż konto", "Zaloguj się"
   - Dla zalogowanych: powitanie z nazwą użytkownika, przyciski "Panel" i "Wyloguj"
   - Przyciski w toolbarze: "Kursy", "O nas", "Kontakt"
   - Sekcja "Dlaczego my?" z 4 kartami funkcji
@@ -56,7 +56,7 @@
 - **Po zalogowaniu**: przejście do DashboardActivity
 
 ### 3. RegisterActivity (Rejestracja)
-- **Ścieżka**: MainActivity → kliknięcie "Zarejestruj się" / LoginActivity → link "Zarejestruj się"
+- **Ścieżka**: MainActivity → kliknięcie "Załóż konto" / LoginActivity → link "Zarejestruj się"
 - **Zawartość**:
   - Formularz: nazwa użytkownika, email, hasło, potwierdzenie hasła
   - Walidacja po stronie klienta (długość hasła, zgodność haseł, unikalność email/nazwy)
