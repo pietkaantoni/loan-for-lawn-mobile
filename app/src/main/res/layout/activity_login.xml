@@ -73,7 +73,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textEmailAddress"
-                    android:placeholder="jan@example.com" />
+                    android:hint="jan@example.com" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -88,7 +88,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textPassword"
-                    android:placeholder="Twoje hasło" />
+                    android:hint="Twoje hasło" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <Button
@@ -101,13 +101,18 @@
                 android:textColor="@color/white"
                 android:textStyle="bold" />
 
-            <TextView
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:gravity="center"
-                android:text="Nie masz konta? "
-                android:textColor="@color/gray_medium">
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Nie masz konta? "
+                    android:textColor="@color/gray_medium" />
 
                 <TextView
                     android:id="@+id/link_register"
@@ -116,7 +121,7 @@
                     android:text="Zarejestruj się"
                     android:textColor="@color/green_primary"
                     android:textStyle="bold" />
-            </TextView>
+            </LinearLayout>
         </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>

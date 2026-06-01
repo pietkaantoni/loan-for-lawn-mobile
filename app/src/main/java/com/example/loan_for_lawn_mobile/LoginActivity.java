@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -13,13 +12,11 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import com.example.loan_for_lawn_mobile.data.api.ApiClient;
-import com.example.loan_for_lawn_mobile.data.api.ApiModels;
+import com.example.loan_for_lawn_mobile.data.AppDatabase;
+import com.example.loan_for_lawn_mobile.data.dao.UserDao;
+import com.example.loan_for_lawn_mobile.data.entity.UserEntity;
+import com.example.loan_for_lawn_mobile.utils.PasswordUtil;
 import com.example.loan_for_lawn_mobile.utils.TokenManager;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -27,6 +24,7 @@ public class LoginActivity extends AppCompatActivity {
     private Button loginButton;
     private TextView errorText;
     private TokenManager tokenManager;
+    private UserDao userDao;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +32,7 @@ public class LoginActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_login);
         tokenManager = new TokenManager(this);
+        userDao = AppDatabase.getInstance(this).userDao();
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -63,39 +62,21 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }
 
-        setLoading(true);
         errorText.setVisibility(android.view.View.GONE);
 
-        ApiModels.LoginRequest request = new ApiModels.LoginRequest(email, password);
-        ApiClient.getBackendService().login(request).enqueue(new Callback<ApiModels.AuthResponse>() {
-            @Override
-            public void onResponse(Call<ApiModels.AuthResponse> call, Response<ApiModels.AuthResponse> response) {
-                setLoading(false);
-                if (response.isSuccessful() && response.body() != null) {
-                    ApiModels.AuthResponse auth = response.body();
-                    tokenManager.saveToken(auth.token);
-                    tokenManager.saveUser(auth.user);
-                    ApiClient.setAuthToken(auth.token);
-                    Toast.makeText(LoginActivity.this, "Zalogowano pomyślnie!", Toast.LENGTH_SHORT).show();
-                    startActivity(new Intent(LoginActivity.this, DashboardActivity.class));
-                    finish();
-                } else {
-                    ApiModels.ErrorResponse err = ApiClient.getRetrofitError(response, ApiModels.ErrorResponse.class);
-                    showError(err != null ? err.error : "Nieprawidłowy email lub hasło.");
-                }
-            }
+        UserEntity user = userDao.getByEmail(email);
+        if (user == null) {
+            showError("Nieprawidłowy email lub hasło.");
+            return;
+        }
+        if (!PasswordUtil.check(password, user.getPasswordHash())) {
+            showError("Nieprawidłowy email lub hasło.");
+            return;
+        }
 
-            @Override
-            public void onFailure(Call<ApiModels.AuthResponse> call, Throwable t) {
-                setLoading(false);
-                showError("Błąd połączenia: " + t.getLocalizedMessage());
-            }
-        });
-    }
-
-    private void setLoading(boolean loading) {
-        loginButton.setEnabled(!loading);
-        loginButton.setText(loading ? "Logowanie..." : "Zaloguj się");
+        tokenManager.saveSession(user.getId(), user.getUsername(), user.getEmail());
+        startActivity(new Intent(this, DashboardActivity.class));
+        finish();
     }
 
     private void showError(String msg) {

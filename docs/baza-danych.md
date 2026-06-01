@@ -17,7 +17,8 @@ Baza danych jest inicjalizowana jako singleton w klasie `AppDatabase`:
 AppDatabase db = AppDatabase.getInstance(context);
 ```
 
-Room automatycznie tworzy schemat bazy na podstawie encji. Wersja bazy danych to 1.
+Room automatycznie tworzy schemat bazy na podstawie encji. Wersja bazy danych to 2.
+Przy zmianie schematu stosowana jest `fallbackToDestructiveMigration()` (reset bazy).
 
 ## Schemat bazy danych
 
@@ -28,6 +29,7 @@ Room automatycznie tworzy schemat bazy na podstawie encji. Wersja bazy danych to
 | id | TEXT | PK | Unikalny identyfikator użytkownika (UUID) |
 | username | TEXT | NOT NULL | Nazwa użytkownika |
 | email | TEXT | NOT NULL | Adres email |
+| password_hash | TEXT | NOT NULL | Hash hasła (SHA-256) |
 | created_at | TEXT | NOT NULL | Data utworzenia konta |
 
 ### Tabela: loans
@@ -51,9 +53,9 @@ Room automatycznie tworzy schemat bazy na podstawie encji. Wersja bazy danych to
 │ id (TEXT) ───────┼──┐       │ id (TEXT)        │
 │ username         │  │       │ user_id (FK) ────┼──┘
 │ email            │  └───────│ amount           │
-│ created_at       │    1:N   │ interest_rate    │
-└──────────────────┘          │ status           │
-                              │ due_date         │
+│ password_hash    │    1:N   │ interest_rate    │
+│ created_at       │          │ status           │
+└──────────────────┘          │ due_date         │
                               │ created_at       │
                               └──────────────────┘
 ```
@@ -68,9 +70,12 @@ Klucz obcy `user_id` z opcją `CASCADE` - usunięcie użytkownika usuwa wszystki
 @Entity(tableName = "users")
 public class UserEntity {
     @PrimaryKey
+    @NonNull
     private String id;
     private String username;
     private String email;
+    @ColumnInfo(name = "password_hash")
+    private String passwordHash;
     @ColumnInfo(name = "created_at")
     private String createdAt;
 }
@@ -86,6 +91,7 @@ public class UserEntity {
         indices = @Index("user_id"))
 public class LoanEntity {
     @PrimaryKey
+    @NonNull
     private String id;
     @ColumnInfo(name = "user_id")
     private String userId;
@@ -105,6 +111,8 @@ public class LoanEntity {
 ### UserDao
 - `insert(UserEntity)` - zapis/zastąpienie użytkownika
 - `getById(String)` - pobranie użytkownika po ID
+- `getByEmail(String)` - pobranie użytkownika po adresie email
+- `getByUsername(String)` - pobranie użytkownika po nazwie
 - `deleteAll()` - usunięcie wszystkich użytkowników
 
 ### LoanDao
@@ -118,8 +126,8 @@ public class LoanEntity {
 
 ## Uwagi
 
-- Baza danych służy głównie do przechowywania danych offline (cache)
-- Podstawowym źródłem danych jest API backendu
-- Przy braku połączenia z internetem dane są wyświetlane z lokalnej bazy Room
-- Token autoryzacyjny JWT jest przechowywany w SharedPreferences, nie w bazie Room
-- W wersji 1 bazy danych nie ma mechanizmu migracji (exportSchema = false)
+- Baza danych jest **głównym źródłem danych** — auth i pożyczki działają w pełni lokalnie
+- Hasła są przechowywane jako hash SHA-256 (PasswordUtil), a nie w postaci jawnej
+- UUID dla użytkowników i pożyczek są generowane po stronie aplikacji (java.util.UUID)
+- Sesja użytkownika (userId, username, email) jest przechowywana w SharedPreferences, nie w bazie Room
+- Wersja bazy danych: 2 (dodano kolumnę password_hash w stosunku do wersji 1)

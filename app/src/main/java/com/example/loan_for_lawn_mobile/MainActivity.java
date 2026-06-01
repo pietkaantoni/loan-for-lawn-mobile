@@ -29,11 +29,12 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
-        setupNavigation();
-        updateAuthState();
-    }
+        findViewById(R.id.btn_login).setOnClickListener(v ->
+                startActivity(new Intent(this, LoginActivity.class)));
 
-    private void setupNavigation() {
+        findViewById(R.id.btn_register).setOnClickListener(v ->
+                startActivity(new Intent(this, RegisterActivity.class)));
+
         findViewById(R.id.btn_loan).setOnClickListener(v -> {
             if (tokenManager.isLoggedIn()) {
                 startActivity(new Intent(this, LoanActivity.class));
@@ -41,21 +42,6 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(this, LoginActivity.class));
             }
         });
-
-        findViewById(R.id.btn_register).setOnClickListener(v ->
-                startActivity(new Intent(this, RegisterActivity.class)));
-
-        findViewById(R.id.btn_login).setOnClickListener(v ->
-                startActivity(new Intent(this, LoginActivity.class)));
-
-        findViewById(R.id.btn_rates).setOnClickListener(v ->
-                startActivity(new Intent(this, RatesActivity.class)));
-
-        findViewById(R.id.btn_about).setOnClickListener(v ->
-                startActivity(new Intent(this, AboutActivity.class)));
-
-        findViewById(R.id.btn_contact).setOnClickListener(v ->
-                startActivity(new Intent(this, ContactActivity.class)));
 
         findViewById(R.id.nav_rates).setOnClickListener(v ->
                 startActivity(new Intent(this, RatesActivity.class)));
@@ -65,6 +51,8 @@ public class MainActivity extends AppCompatActivity {
 
         findViewById(R.id.nav_contact).setOnClickListener(v ->
                 startActivity(new Intent(this, ContactActivity.class)));
+
+        updateAuthState();
     }
 
     private void updateAuthState() {
