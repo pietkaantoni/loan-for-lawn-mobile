@@ -39,14 +39,15 @@
 - **Zawartość**:
   - Hero section z tytułem, opisem i przyciskami CTA
   - Dla niezalogowanych: "Zaloguj się", "Zarejestruj się"
-  - Dla zalogowanych: dodatkowa sekcja z przyciskiem "Panel"
-  - Przyciski: "Kursy walut", "O nas", "Kontakt"
+  - Dla zalogowanych: powitanie z nazwą użytkownika, przyciski "Panel" i "Wyloguj"
+  - Przyciski w toolbarze: "Kursy", "O nas", "Kontakt"
+  - Sekcja "Dlaczego my?" z 4 kartami funkcji
 - **Nawigacja**: do LoginActivity, RegisterActivity, RatesActivity, AboutActivity, ContactActivity, DashboardActivity
 
 ### 2. LoginActivity (Logowanie)
 - **Ścieżka**: MainActivity → kliknięcie "Zaloguj się"
 - **Zawartość**:
-  - Formularz: email + hasło
+  - Formularz: email + hasło (TextInputLayout Material Design)
   - Przycisk "Zaloguj się"
   - Link do rejestracji
 - **Logika**: weryfikacja hasła przez Room (SHA-256), zapis sesji do SharedPreferences
@@ -82,15 +83,16 @@
 - **Wymaga autoryzacji**: jeśli brak sesji → przekierowanie do LoginActivity
 
 ### 6. RatesActivity (Kursy walut)
-- **Ścieżka**: MainActivity → kliknięcie "Kursy walut"
+- **Ścieżka**: MainActivity → kliknięcie "Kursy" w toolbarze / przycisk "Kursy walut"
 - **Zawartość**:
   - Pobranie danych z API NBP (jedyny endpoint zewnętrzny)
-  - Tabela z kursami średnimi walut względem PLN
-  - Informacja o numerze tabeli NBP
-  - Przycisk "Spróbuj ponownie" w razie błędu
+  - Lista 10 najpopularniejszych kursów średnich walut względem PLN (EUR, USD, GBP, CHF, JPY, CZK, DKK, NOK, SEK, CAD)
+  - Data pochodzenia danych z NBP
+  - Lista tylko do odczytu — brak interakcji
+  - Wiersz: kod waluty, nazwa, kurs z 4 miejscami po przecinku + "PLN"
 
 ### 7. AboutActivity (O nas)
-- **Ścieżka**: MainActivity → kliknięcie "O nas"
+- **Ścieżka**: MainActivity → kliknięcie "O nas" w toolbarze
 - **Zawartość**:
   - Opis platformy
   - Sekcja "Nasza misja"
@@ -98,9 +100,11 @@
   - Sekcja "Bezpieczeństwo"
 
 ### 8. ContactActivity (Kontakt)
-- **Ścieżka**: MainActivity → kliknięcie "Kontakt"
+- **Ścieżka**: MainActivity → kliknięcie "Kontakt" w toolbarze
 - **Zawartość**:
+  - Nagłówek "Masz pytania? Skontaktuj się z nami!"
   - Dane kontaktowe (email, telefon, adres, godziny otwarcia)
+  - Nagłówek "Napisz do nas"
   - Formularz kontaktowy (imię, email, wiadomość)
   - Po wysłaniu: komunikat sukcesu (lokalnie, bez wywołania API)
 

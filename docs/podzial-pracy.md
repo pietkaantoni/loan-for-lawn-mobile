@@ -34,7 +34,21 @@ Loan-for-Lawn-Mobile/
 │   │   │   │       └── PasswordUtil.java        # Hashowanie haseł (SHA-256)
 │   │   │   ├── res/
 │   │   │   │   ├── layout/                      # Pliki XML layoutów
+│   │   │   │   │   ├── activity_main.xml
+│   │   │   │   │   ├── activity_login.xml
+│   │   │   │   │   ├── activity_register.xml
+│   │   │   │   │   ├── activity_dashboard.xml
+│   │   │   │   │   ├── activity_loan.xml
+│   │   │   │   │   ├── activity_rates.xml
+│   │   │   │   │   ├── activity_about.xml
+│   │   │   │   │   ├── activity_contact.xml
+│   │   │   │   │   ├── item_loan.xml
+│   │   │   │   │   ├── item_offer.xml
+│   │   │   │   │   └── item_rate.xml
 │   │   │   │   ├── drawable/                    # Zasoby graficzne
+│   │   │   │   │   ├── ic_launcher_background.xml
+│   │   │   │   │   ├── ic_launcher_foreground.xml
+│   │   │   │   │   └── chip_bg.xml
 │   │   │   │   ├── values/                      # Stringi, kolory, motywy
 │   │   │   │   └── mipmap-*/                    # Ikony aplikacji
 │   │   │   └── AndroidManifest.xml
@@ -50,6 +64,7 @@ Loan-for-Lawn-Mobile/
 │   ├── podzial-pracy.md
 │   ├── baza-danych.md
 │   └── schemat-nawigacji.md
+├── README.md                                    # Instrukcja uruchomienia
 ├── build.gradle.kts                             # Konfiguracja główna
 ├── settings.gradle.kts
 ├── gradle.properties
@@ -68,7 +83,7 @@ Loan-for-Lawn-Mobile/
 | `RegisterActivity` | Formularz rejestracji (nazwa, email, hasło, potwierdzenie); hash hasła SHA-256 przed zapisem |
 | `DashboardActivity` | Panel użytkownika: statystyki, lista pożyczek z Room, przycisk spłaty |
 | `LoanActivity` | Wybór oferty pożyczki z kalkulacją i dialogiem potwierdzenia; zapis do Room |
-| `RatesActivity` | Przeglądarka kursów walut z API NBP (jedyny endpoint zewnętrzny) |
+| `RatesActivity` | Przeglądarka 10 najpopularniejszych kursów walut z API NBP (lista tylko do odczytu) |
 | `AboutActivity` | Strona informacyjna o firmie |
 | `ContactActivity` | Strona kontaktowa z danymi i formularzem (działa lokalnie, bez API) |
 
@@ -80,7 +95,7 @@ Loan-for-Lawn-Mobile/
 | `LoanEntity` | Encja Room dla tabeli pożyczek |
 | `UserDao` | Operacje na tabeli użytkowników (insert, getById, getByEmail, getByUsername, delete) |
 | `LoanDao` | Operacje na tabeli pożyczek (insert, getByUserId, updateStatus, delete) |
-| `AppDatabase` | Klasa bazy danych Room (singleton, wersja 2, fallbackToDestructiveMigration) |
+| `AppDatabase` | Klasa bazy danych Room (singleton, wersja 2, fallbackToDestructiveMigration, allowMainThreadQueries) |
 | `ApiService` | Interfejs Retrofit — tylko endpoint NBP (exchangerates/tables/A) |
 | `ApiClient` | Klient Retrofit (singleton) — tylko NBP, bez OkHttp logging |
 | `ApiModels` | Modele danych dla odpowiedzi NBP API |
@@ -116,3 +131,4 @@ Wszystkie operacje działają lokalnie:
 | Retrofit | 2.11.0 | Klient HTTP (tylko API NBP) |
 | Converter Gson | 2.11.0 | Serializacja JSON |
 | Gson | 2.11.0 | Parsowanie JSON |
+| CardView | 1.0.0 | Karty na stronie głównej i w ofertach |
