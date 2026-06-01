@@ -48,23 +48,6 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.btn_login).setOnClickListener(v ->
                 startActivity(new Intent(this, LoginActivity.class)));
 
-        findViewById(R.id.btn_rates).setOnClickListener(v ->
-                startActivity(new Intent(this, RatesActivity.class)));
-
-        findViewById(R.id.btn_about).setOnClickListener(v ->
-                startActivity(new Intent(this, AboutActivity.class)));
-
-        findViewById(R.id.btn_contact).setOnClickListener(v ->
-                startActivity(new Intent(this, ContactActivity.class)));
-
-        findViewById(R.id.nav_rates).setOnClickListener(v ->
-                startActivity(new Intent(this, RatesActivity.class)));
-
-        findViewById(R.id.nav_about).setOnClickListener(v ->
-                startActivity(new Intent(this, AboutActivity.class)));
-
-        findViewById(R.id.nav_contact).setOnClickListener(v ->
-                startActivity(new Intent(this, ContactActivity.class)));
     }
 
     private void updateAuthState() {
