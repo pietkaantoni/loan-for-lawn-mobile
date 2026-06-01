@@ -34,6 +34,10 @@ android {
     }
 }
 
+tasks.withType<JavaCompile> {
+    options.compilerArgs.add("-parameters")
+}
+
 dependencies {
     implementation(libs.appcompat)
     implementation(libs.material)
