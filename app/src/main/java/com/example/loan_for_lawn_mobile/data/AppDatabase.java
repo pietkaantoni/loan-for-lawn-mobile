@@ -26,7 +26,7 @@ public abstract class AppDatabase extends RoomDatabase {
                             context.getApplicationContext(),
                             AppDatabase.class,
                             "loan_for_lawn_db"
-                    ).fallbackToDestructiveMigration().build();
+                    ).fallbackToDestructiveMigration().allowMainThreadQueries().build();
                 }
             }
         }

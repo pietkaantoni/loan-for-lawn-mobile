@@ -13,8 +13,10 @@ import androidx.core.view.WindowInsetsCompat;
 import com.example.loan_for_lawn_mobile.data.api.ApiClient;
 import com.example.loan_for_lawn_mobile.data.api.ApiModels;
 
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -22,10 +24,12 @@ import retrofit2.Response;
 
 public class RatesActivity extends AppCompatActivity {
 
-    private LinearLayout popularContainer, othersContainer;
-    private TextView ratesTable, dateText, errorText, loadingText;
-    private final List<String> selectedCodes = new ArrayList<>();
-    private List<ApiModels.NbpRate> allRates;
+    private LinearLayout ratesContainer;
+    private TextView dateText, errorText, loadingText;
+
+    private static final String[] POPULAR_CODES = {
+            "EUR", "USD", "GBP", "CHF", "JPY", "CZK", "DKK", "NOK", "SEK", "CAD"
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,9 +43,7 @@ public class RatesActivity extends AppCompatActivity {
             return insets;
         });
 
-        popularContainer = findViewById(R.id.popular_container);
-        othersContainer = findViewById(R.id.others_container);
-        ratesTable = findViewById(R.id.rates_table);
+        ratesContainer = findViewById(R.id.rates_container);
         dateText = findViewById(R.id.date_text);
         errorText = findViewById(R.id.error_text);
         loadingText = findViewById(R.id.loading_text);
@@ -60,9 +62,8 @@ public class RatesActivity extends AppCompatActivity {
                 loadingText.setVisibility(android.view.View.GONE);
                 if (response.isSuccessful() && response.body() != null && !response.body().isEmpty()) {
                     ApiModels.NbpResponse table = response.body().get(0);
-                    dateText.setText("Aktualne kursy średnie walut względem PLN (NBP) — " + table.effectiveDate);
-                    allRates = table.rates;
-                    displayCurrencies();
+                    dateText.setText("Kursy średnie z dnia " + table.effectiveDate);
+                    displayPopularRates(table.rates);
                 } else {
                     showError("Nie udało się pobrać kursów.");
                 }
@@ -76,92 +77,44 @@ public class RatesActivity extends AppCompatActivity {
         });
     }
 
-    private void displayCurrencies() {
-        if (allRates == null) return;
-
-        String[] popularCodes = {"EUR", "USD", "GBP", "CHF", "JPY", "CZK", "DKK", "NOK", "SEK"};
-
+    private void displayPopularRates(List<ApiModels.NbpRate> allRates) {
         List<ApiModels.NbpRate> popular = new ArrayList<>();
-        List<ApiModels.NbpRate> others = new ArrayList<>();
-
-        for (ApiModels.NbpRate rate : allRates) {
-            boolean isPopular = false;
-            for (String code : popularCodes) {
+        for (String code : POPULAR_CODES) {
+            for (ApiModels.NbpRate rate : allRates) {
                 if (code.equals(rate.code)) {
-                    isPopular = true;
+                    popular.add(rate);
                     break;
                 }
             }
-            if (isPopular) popular.add(rate);
-            else others.add(rate);
         }
 
-        for (ApiModels.NbpRate rate : popular) {
-            android.widget.Button chip = new android.widget.Button(this);
-            chip.setText(rate.code + " - " + rate.currency);
-            chip.setTextSize(12);
-            chip.setPadding(16, 8, 16, 8);
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.WRAP_CONTENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT);
-            params.setMargins(0, 0, 8, 8);
-            chip.setLayoutParams(params);
-            chip.setBackgroundResource(R.drawable.chip_bg);
-            chip.setOnClickListener(v -> toggleCurrency(rate.code, chip));
-            popularContainer.addView(chip);
-        }
+        NumberFormat fmt = NumberFormat.getNumberInstance(Locale.forLanguageTag("pl-PL"));
+        fmt.setMinimumFractionDigits(4);
+        fmt.setMaximumFractionDigits(4);
 
-        for (ApiModels.NbpRate rate : others) {
-            android.widget.Button chip = new android.widget.Button(this);
-            chip.setText(rate.code + " - " + rate.currency);
-            chip.setTextSize(12);
-            chip.setPadding(16, 8, 16, 8);
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.WRAP_CONTENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT);
-            params.setMargins(0, 0, 8, 8);
-            chip.setLayoutParams(params);
-            chip.setBackgroundResource(R.drawable.chip_bg);
-            chip.setOnClickListener(v -> toggleCurrency(rate.code, chip));
-            othersContainer.addView(chip);
-        }
+        for (int i = 0; i < popular.size(); i++) {
+            ApiModels.NbpRate rate = popular.get(i);
 
-        for (ApiModels.NbpRate rate : popular.subList(0, Math.min(5, popular.size()))) {
-            selectedCodes.add(rate.code);
-        }
+            android.view.View row = getLayoutInflater().inflate(R.layout.item_rate, null);
 
-        refreshRatesDisplay();
-    }
+            TextView codeText = row.findViewById(R.id.rate_code);
+            TextView nameText = row.findViewById(R.id.rate_name);
+            TextView valueText = row.findViewById(R.id.rate_value);
 
-    private void toggleCurrency(String code, android.widget.Button chip) {
-        if (selectedCodes.contains(code)) {
-            selectedCodes.remove(code);
-            chip.setAlpha(0.5f);
-        } else {
-            selectedCodes.add(code);
-            chip.setAlpha(1.0f);
-        }
-        refreshRatesDisplay();
-    }
+            codeText.setText(rate.code);
+            nameText.setText(rate.currency);
+            valueText.setText(fmt.format(rate.mid) + " PLN");
 
-    private void refreshRatesDisplay() {
-        if (selectedCodes.isEmpty()) {
-            ratesTable.setText("Wybierz waluty, aby zobaczyć kursy.");
-            return;
-        }
+            android.view.View divider = new android.view.View(this);
+            divider.setLayoutParams(new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT, 1));
+            divider.setBackgroundColor(0xFFE0E0E0);
 
-        StringBuilder sb = new StringBuilder();
-        sb.append("Waluta\tKod\tKurs (PLN)\n");
-
-        for (ApiModels.NbpRate rate : allRates) {
-            if (selectedCodes.contains(rate.code)) {
-                sb.append(rate.currency).append("\t")
-                        .append(rate.code).append("\t")
-                        .append(String.format("%.4f", rate.mid)).append("\n");
+            ratesContainer.addView(row);
+            if (i < popular.size() - 1) {
+                ratesContainer.addView(divider);
             }
         }
-
-        ratesTable.setText(sb.toString());
     }
 
     private void showError(String msg) {

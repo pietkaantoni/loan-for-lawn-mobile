@@ -26,7 +26,8 @@ Aplikacja jest mobilnym odpowiednikiem strony internetowej Loan for Lawn, zaproj
 
 ### 3. Kursy walut
 - Integracja z API Narodowego Banku Polskiego (NBP)
-- Wyświetlanie aktualnych kursów średnich walut względem PLN
+- Wyświetlanie 10 najpopularniejszych kursów średnich walut względem PLN (EUR, USD, GBP, CHF, JPY, CZK, DKK, NOK, SEK, CAD)
+- Lista tylko do odczytu — brak interakcji
 - Jedyna komunikacja z zewnętrznym serwerem
 
 ### 4. Formularz kontaktowy
@@ -61,7 +62,7 @@ Aplikacja została zbudowana w architekturze wieloaktywnościowej (Multiple Acti
 3. **RegisterActivity** - rejestracja nowego użytkownika (hash hasła SHA-256)
 4. **DashboardActivity** - panel użytkownika z listą pożyczek
 5. **LoanActivity** - wybór oferty pożyczki (zapis do Room)
-6. **RatesActivity** - przeglądarka kursów walut (NBP API)
+6. **RatesActivity** - przeglądarka 10 popularnych kursów walut (NBP API, lista tylko do odczytu)
 7. **AboutActivity** - strona informacyjna
 8. **ContactActivity** - strona kontaktowa z formularzem (lokalnie)
 
