@@ -3,11 +3,8 @@ package com.example.loan_for_lawn_mobile.utils;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import com.example.loan_for_lawn_mobile.data.api.ApiModels;
-
 public class TokenManager {
     private static final String PREF_NAME = "loan_prefs";
-    private static final String KEY_TOKEN = "jwt_token";
     private static final String KEY_USER_ID = "user_id";
     private static final String KEY_USERNAME = "username";
     private static final String KEY_EMAIL = "email";
@@ -18,19 +15,11 @@ public class TokenManager {
         prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
     }
 
-    public void saveToken(String token) {
-        prefs.edit().putString(KEY_TOKEN, token).apply();
-    }
-
-    public String getToken() {
-        return prefs.getString(KEY_TOKEN, null);
-    }
-
-    public void saveUser(ApiModels.User user) {
+    public void saveSession(String userId, String username, String email) {
         prefs.edit()
-                .putString(KEY_USER_ID, user.id)
-                .putString(KEY_USERNAME, user.username)
-                .putString(KEY_EMAIL, user.email)
+                .putString(KEY_USER_ID, userId)
+                .putString(KEY_USERNAME, username)
+                .putString(KEY_EMAIL, email)
                 .apply();
     }
 
@@ -47,7 +36,7 @@ public class TokenManager {
     }
 
     public boolean isLoggedIn() {
-        return getToken() != null;
+        return getUserId() != null;
     }
 
     public void clear() {

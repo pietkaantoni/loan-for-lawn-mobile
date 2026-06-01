@@ -2,7 +2,6 @@ package com.example.loan_for_lawn_mobile;
 
 import android.app.AlertDialog;
 import android.os.Bundle;
-import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -13,17 +12,15 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import com.example.loan_for_lawn_mobile.data.api.ApiClient;
-import com.example.loan_for_lawn_mobile.data.api.ApiModels;
+import com.example.loan_for_lawn_mobile.data.AppDatabase;
+import com.example.loan_for_lawn_mobile.data.dao.LoanDao;
+import com.example.loan_for_lawn_mobile.data.entity.LoanEntity;
 import com.example.loan_for_lawn_mobile.utils.LoanCalculator;
 import com.example.loan_for_lawn_mobile.utils.TokenManager;
 
 import java.text.NumberFormat;
 import java.util.Locale;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
+import java.util.UUID;
 
 public class LoanActivity extends AppCompatActivity {
 
@@ -55,9 +52,9 @@ public class LoanActivity extends AppCompatActivity {
     };
 
     private TokenManager tokenManager;
+    private LoanDao loanDao;
     private LinearLayout offersContainer;
     private TextView errorText, successText;
-    private LoanOffer selectedOffer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +63,7 @@ public class LoanActivity extends AppCompatActivity {
         setContentView(R.layout.activity_loan);
 
         tokenManager = new TokenManager(this);
+        loanDao = AppDatabase.getInstance(this).loanDao();
 
         if (!tokenManager.isLoggedIn()) {
             startActivity(new android.content.Intent(this, LoginActivity.class));
@@ -84,7 +82,6 @@ public class LoanActivity extends AppCompatActivity {
         successText = findViewById(R.id.success_text);
 
         findViewById(R.id.btn_back).setOnClickListener(v -> finish());
-        ApiClient.setAuthToken(tokenManager.getToken());
 
         displayOffers();
     }
@@ -100,7 +97,7 @@ public class LoanActivity extends AppCompatActivity {
             TextView amountText = offerView.findViewById(R.id.offer_amount);
             TextView labelText = offerView.findViewById(R.id.offer_label);
             TextView detailsText = offerView.findViewById(R.id.offer_details);
-            Button confirmBtn = offerView.findViewById(R.id.btn_confirm);
+            android.widget.Button confirmBtn = offerView.findViewById(R.id.btn_confirm);
 
             double monthly = LoanCalculator.calculateMonthlyPayment(offer.amount, offer.interestRate, offer.months);
             double total = monthly * offer.months;
@@ -112,25 +109,12 @@ public class LoanActivity extends AppCompatActivity {
                     + "Miesięczna rata: " + fmt.format(monthly) + " PLN\n"
                     + "Całkowita spłata: " + fmt.format(total) + " PLN");
 
-            offerView.setOnClickListener(v -> {
-                selectedOffer = offer;
-                highlightSelected(offerView);
-                showConfirmationDialog(offer);
-            });
+            offerView.setOnClickListener(v -> showConfirmationDialog(offer));
 
-            confirmBtn.setOnClickListener(v -> {
-                showConfirmationDialog(offer);
-            });
+            confirmBtn.setOnClickListener(v -> showConfirmationDialog(offer));
 
             offersContainer.addView(offerView);
         }
-    }
-
-    private void highlightSelected(android.view.View selected) {
-        for (int i = 0; i < offersContainer.getChildCount(); i++) {
-            offersContainer.getChildAt(i).setAlpha(0.5f);
-        }
-        selected.setAlpha(1.0f);
     }
 
     private void showConfirmationDialog(LoanOffer offer) {
@@ -160,33 +144,21 @@ public class LoanActivity extends AppCompatActivity {
         errorText.setVisibility(android.view.View.GONE);
         successText.setVisibility(android.view.View.GONE);
 
+        String id = UUID.randomUUID().toString();
+        String userId = tokenManager.getUserId();
         String dueDate = LoanCalculator.calculateDueDate(offer.months);
-        ApiModels.CreateLoanRequest request = new ApiModels.CreateLoanRequest(
-                offer.amount, offer.interestRate, dueDate);
+        String createdAt = java.time.LocalDate.now().toString();
 
-        ApiClient.getBackendService().createLoan(request).enqueue(new Callback<ApiModels.LoanResponse>() {
-            @Override
-            public void onResponse(Call<ApiModels.LoanResponse> call, Response<ApiModels.LoanResponse> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    ApiModels.Loan loan = response.body().loan;
-                    String msg = "Pożyczka " + loan.amount + " PLN została przyznana!";
-                    successText.setText(msg);
-                    successText.setVisibility(android.view.View.VISIBLE);
-                } else {
-                    ApiModels.ErrorResponse err = ApiClient.getRetrofitError(response, ApiModels.ErrorResponse.class);
-                    showError(err != null ? err.error : "Nie udało się utworzyć pożyczki.");
-                }
-            }
+        LoanEntity loan = new LoanEntity(id, userId, offer.amount, offer.interestRate,
+                "active", dueDate, createdAt);
+        loanDao.insert(loan);
 
-            @Override
-            public void onFailure(Call<ApiModels.LoanResponse> call, Throwable t) {
-                showError("Błąd połączenia: " + t.getLocalizedMessage());
-            }
-        });
-    }
+        NumberFormat fmt = NumberFormat.getNumberInstance(Locale.forLanguageTag("pl-PL"));
+        fmt.setMinimumFractionDigits(2);
+        fmt.setMaximumFractionDigits(2);
 
-    private void showError(String msg) {
-        errorText.setText(msg);
-        errorText.setVisibility(android.view.View.VISIBLE);
+        String msg = "Pożyczka " + fmt.format(offer.amount) + " PLN została przyznana!";
+        successText.setText(msg);
+        successText.setVisibility(android.view.View.VISIBLE);
     }
 }

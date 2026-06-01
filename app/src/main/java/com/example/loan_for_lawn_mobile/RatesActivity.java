@@ -3,7 +3,6 @@ package com.example.loan_for_lawn_mobile;
 import android.os.Bundle;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -26,6 +25,7 @@ public class RatesActivity extends AppCompatActivity {
     private LinearLayout popularContainer, othersContainer;
     private TextView ratesTable, dateText, errorText, loadingText;
     private final List<String> selectedCodes = new ArrayList<>();
+    private List<ApiModels.NbpRate> allRates;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,34 +48,37 @@ public class RatesActivity extends AppCompatActivity {
 
         findViewById(R.id.btn_back).setOnClickListener(v -> finish());
 
-        loadCurrencies();
+        loadRates();
     }
 
-    private void loadCurrencies() {
+    private void loadRates() {
         loadingText.setVisibility(android.view.View.VISIBLE);
 
-        ApiClient.getNbpService().getNbpRates().enqueue(new Callback<List<ApiModels.NbpTable>>() {
+        ApiClient.getClient().getExchangeRates().enqueue(new Callback<List<ApiModels.NbpResponse>>() {
             @Override
-            public void onResponse(Call<List<ApiModels.NbpTable>> call, Response<List<ApiModels.NbpTable>> response) {
+            public void onResponse(Call<List<ApiModels.NbpResponse>> call, Response<List<ApiModels.NbpResponse>> response) {
                 loadingText.setVisibility(android.view.View.GONE);
                 if (response.isSuccessful() && response.body() != null && !response.body().isEmpty()) {
-                    ApiModels.NbpTable table = response.body().get(0);
+                    ApiModels.NbpResponse table = response.body().get(0);
                     dateText.setText("Aktualne kursy średnie walut względem PLN (NBP) — " + table.effectiveDate);
-                    displayCurrencies(table.rates);
+                    allRates = table.rates;
+                    displayCurrencies();
                 } else {
                     showError("Nie udało się pobrać kursów.");
                 }
             }
 
             @Override
-            public void onFailure(Call<List<ApiModels.NbpTable>> call, Throwable t) {
+            public void onFailure(Call<List<ApiModels.NbpResponse>> call, Throwable t) {
                 loadingText.setVisibility(android.view.View.GONE);
                 showError("Błąd połączenia: " + t.getLocalizedMessage());
             }
         });
     }
 
-    private void displayCurrencies(List<ApiModels.NbpRate> allRates) {
+    private void displayCurrencies() {
+        if (allRates == null) return;
+
         String[] popularCodes = {"EUR", "USD", "GBP", "CHF", "JPY", "CZK", "DKK", "NOK", "SEK"};
 
         List<ApiModels.NbpRate> popular = new ArrayList<>();
@@ -104,7 +107,7 @@ public class RatesActivity extends AppCompatActivity {
             params.setMargins(0, 0, 8, 8);
             chip.setLayoutParams(params);
             chip.setBackgroundResource(R.drawable.chip_bg);
-            chip.setOnClickListener(v -> toggleCurrency(rate.code, chip, allRates));
+            chip.setOnClickListener(v -> toggleCurrency(rate.code, chip));
             popularContainer.addView(chip);
         }
 
@@ -119,7 +122,7 @@ public class RatesActivity extends AppCompatActivity {
             params.setMargins(0, 0, 8, 8);
             chip.setLayoutParams(params);
             chip.setBackgroundResource(R.drawable.chip_bg);
-            chip.setOnClickListener(v -> toggleCurrency(rate.code, chip, allRates));
+            chip.setOnClickListener(v -> toggleCurrency(rate.code, chip));
             othersContainer.addView(chip);
         }
 
@@ -127,10 +130,10 @@ public class RatesActivity extends AppCompatActivity {
             selectedCodes.add(rate.code);
         }
 
-        refreshRatesDisplay(allRates);
+        refreshRatesDisplay();
     }
 
-    private void toggleCurrency(String code, android.widget.Button chip, List<ApiModels.NbpRate> allRates) {
+    private void toggleCurrency(String code, android.widget.Button chip) {
         if (selectedCodes.contains(code)) {
             selectedCodes.remove(code);
             chip.setAlpha(0.5f);
@@ -138,10 +141,10 @@ public class RatesActivity extends AppCompatActivity {
             selectedCodes.add(code);
             chip.setAlpha(1.0f);
         }
-        refreshRatesDisplay(allRates);
+        refreshRatesDisplay();
     }
 
-    private void refreshRatesDisplay(List<ApiModels.NbpRate> allRates) {
+    private void refreshRatesDisplay() {
         if (selectedCodes.isEmpty()) {
             ratesTable.setText("Wybierz waluty, aby zobaczyć kursy.");
             return;

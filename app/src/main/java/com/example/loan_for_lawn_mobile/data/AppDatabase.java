@@ -11,7 +11,7 @@ import com.example.loan_for_lawn_mobile.data.dao.UserDao;
 import com.example.loan_for_lawn_mobile.data.entity.LoanEntity;
 import com.example.loan_for_lawn_mobile.data.entity.UserEntity;
 
-@Database(entities = {UserEntity.class, LoanEntity.class}, version = 1, exportSchema = false)
+@Database(entities = {UserEntity.class, LoanEntity.class}, version = 2, exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase {
     private static volatile AppDatabase INSTANCE;
 
@@ -26,7 +26,7 @@ public abstract class AppDatabase extends RoomDatabase {
                             context.getApplicationContext(),
                             AppDatabase.class,
                             "loan_for_lawn_db"
-                    ).build();
+                    ).fallbackToDestructiveMigration().build();
                 }
             }
         }

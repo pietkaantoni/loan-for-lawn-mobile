@@ -13,13 +13,13 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import com.example.loan_for_lawn_mobile.data.api.ApiClient;
-import com.example.loan_for_lawn_mobile.data.api.ApiModels;
+import com.example.loan_for_lawn_mobile.data.AppDatabase;
+import com.example.loan_for_lawn_mobile.data.dao.UserDao;
+import com.example.loan_for_lawn_mobile.data.entity.UserEntity;
+import com.example.loan_for_lawn_mobile.utils.PasswordUtil;
 import com.example.loan_for_lawn_mobile.utils.TokenManager;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
+import java.util.UUID;
 
 public class RegisterActivity extends AppCompatActivity {
 
@@ -27,6 +27,7 @@ public class RegisterActivity extends AppCompatActivity {
     private Button registerButton;
     private TextView errorText;
     private TokenManager tokenManager;
+    private UserDao userDao;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +35,7 @@ public class RegisterActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_register);
         tokenManager = new TokenManager(this);
+        userDao = AppDatabase.getInstance(this).userDao();
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -79,43 +81,36 @@ public class RegisterActivity extends AppCompatActivity {
             return;
         }
 
-        setLoading(true);
+        if (userDao.getByEmail(email) != null) {
+            showError("Konto z tym adresem email już istnieje.");
+            return;
+        }
+        if (userDao.getByUsername(username) != null) {
+            showError("Nazwa użytkownika jest już zajęta.");
+            return;
+        }
+
         errorText.setVisibility(android.view.View.GONE);
+        registerButton.setEnabled(false);
+        registerButton.setText("Rejestracja...");
 
-        ApiModels.AuthRequest request = new ApiModels.AuthRequest(username, email, password);
-        ApiClient.getBackendService().register(request).enqueue(new Callback<ApiModels.AuthResponse>() {
-            @Override
-            public void onResponse(Call<ApiModels.AuthResponse> call, Response<ApiModels.AuthResponse> response) {
-                setLoading(false);
-                if (response.isSuccessful() && response.body() != null) {
-                    ApiModels.AuthResponse auth = response.body();
-                    tokenManager.saveToken(auth.token);
-                    tokenManager.saveUser(auth.user);
-                    ApiClient.setAuthToken(auth.token);
-                    Toast.makeText(RegisterActivity.this, "Konto utworzone pomyślnie!", Toast.LENGTH_SHORT).show();
-                    startActivity(new Intent(RegisterActivity.this, DashboardActivity.class));
-                    finish();
-                } else {
-                    ApiModels.ErrorResponse err = ApiClient.getRetrofitError(response, ApiModels.ErrorResponse.class);
-                    showError(err != null ? err.error : "Rejestracja nie powiodła się.");
-                }
-            }
+        String id = UUID.randomUUID().toString();
+        String hash = PasswordUtil.hash(password);
+        String createdAt = java.time.LocalDate.now().toString();
 
-            @Override
-            public void onFailure(Call<ApiModels.AuthResponse> call, Throwable t) {
-                setLoading(false);
-                showError("Błąd połączenia: " + t.getLocalizedMessage());
-            }
-        });
-    }
+        UserEntity user = new UserEntity(id, username, email, hash, createdAt);
+        userDao.insert(user);
 
-    private void setLoading(boolean loading) {
-        registerButton.setEnabled(!loading);
-        registerButton.setText(loading ? "Rejestracja..." : "Zarejestruj się");
+        tokenManager.saveSession(id, username, email);
+        Toast.makeText(this, "Konto utworzone pomyślnie!", Toast.LENGTH_SHORT).show();
+        startActivity(new Intent(this, DashboardActivity.class));
+        finish();
     }
 
     private void showError(String msg) {
         errorText.setText(msg);
         errorText.setVisibility(android.view.View.VISIBLE);
+        registerButton.setEnabled(true);
+        registerButton.setText("Zarejestruj się");
     }
 }
