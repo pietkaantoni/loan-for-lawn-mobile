@@ -51,8 +51,8 @@ Przy zmianie schematu stosowana jest `fallbackToDestructiveMigration()` (reset b
 │      users       │          │      loans       │
 ├──────────────────┤          ├──────────────────┤
 │ id (TEXT) ───────┼──┐       │ id (TEXT)        │
-│ username         │  │       │ user_id (FK) ────┼──┘
-│ email            │  └───────│ amount           │
+│ username         │  └───────│ user_id (FK)     │
+│ email            │          │ amount           │
 │ password_hash    │    1:N   │ interest_rate    │
 │ created_at       │          │ status           │
 └──────────────────┘          │ due_date         │
