@@ -72,8 +72,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="text"
-                    android:minLength="3"
-                    android:placeholder="jan_kowalski" />
+                    android:hint="jan_kowalski" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -87,7 +86,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textEmailAddress"
-                    android:placeholder="jan@example.com" />
+                    android:hint="jan@example.com" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -102,8 +101,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textPassword"
-                    android:minLength="6"
-                    android:placeholder="Minimum 6 znaków" />
+                    android:hint="Minimum 6 znaków" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -118,7 +116,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textPassword"
-                    android:placeholder="Powtórz hasło" />
+                    android:hint="Powtórz hasło" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <Button
