@@ -2,11 +2,13 @@ package com.example.loan_for_lawn_mobile.data.entity;
 
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
+import androidx.annotation.NonNull;
 import androidx.room.PrimaryKey;
 
 @Entity(tableName = "users")
 public class UserEntity {
     @PrimaryKey
+    @NonNull
     private String id;
 
     @ColumnInfo(name = "username")

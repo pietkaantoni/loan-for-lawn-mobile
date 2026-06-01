@@ -4,6 +4,7 @@ import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.Index;
+import androidx.annotation.NonNull;
 import androidx.room.PrimaryKey;
 
 @Entity(tableName = "loans",
@@ -14,6 +15,7 @@ import androidx.room.PrimaryKey;
         indices = @Index("user_id"))
 public class LoanEntity {
     @PrimaryKey
+    @NonNull
     private String id;
 
     @ColumnInfo(name = "user_id")
